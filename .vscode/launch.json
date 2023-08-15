@@ -8,7 +8,7 @@
             "name": "C++ Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/${fileBasenameNoExtension}",
+            "program": "${workspaceFolder}/bin/${fileBasenameNoExtension}",
             "internalConsoleOptions": "openOnSessionStart",
             "preLaunchTask": "C/C++: gcc build active file",
             "logging": {
