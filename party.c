@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <pthread.h>
 
-typedef struct vec2 
+typedef struct vec2_t 
 {
     int x;
     int y;
@@ -17,7 +17,7 @@ typedef struct vec2
 
 #define R(r) rand() % r
 
-typedef struct buffer 
+typedef struct buffer_t
 {
     vec2_t dimensions;
     char* data;
