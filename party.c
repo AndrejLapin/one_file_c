@@ -9,29 +9,29 @@
 #include <unistd.h>
 #include <pthread.h>
 
-struct vec2 
+typedef struct vec2 
 {
     int x;
     int y;
-};
+}vec2_t;
 
-#define Vec2(name,xc,yc) struct vec2 name; name.x = xc; name.y = yc;
+#define Vec2(name,xc,yc) vec2_t name; name.x = xc; name.y = yc;
 #define R(r) rand() % r
 
-struct buffer 
+typedef struct buffer 
 {
-    struct vec2 dimensions;
+    vec2_t dimensions;
     char* data;
-};
+}buffer_t;
 
-void initBuffer(struct buffer* writeBuff, int width, int height)
+void initBuffer(buffer_t* writeBuff, int width, int height)
 {
     writeBuff->dimensions.x = width;
     writeBuff->dimensions.y = height;
     writeBuff->data = malloc(width * height * sizeof(char));
 }
 
-void fillBuffer(struct buffer* writeBuff, char data)
+void fillBuffer(buffer_t* writeBuff, char data)
 {
     int size = writeBuff->dimensions.x * writeBuff->dimensions.y;
     for(int i = 0; i < size; i++)
@@ -40,7 +40,7 @@ void fillBuffer(struct buffer* writeBuff, char data)
     }
 }
 
-void writeToBuffer(struct buffer* outBuffer, struct buffer* inBuffer, int xOffset, int yOffset)
+void writeToBuffer(buffer_t* outBuffer, buffer_t* inBuffer, int xOffset, int yOffset)
 {
     for(int y = 0; y < inBuffer->dimensions.y; y++)
     {
@@ -62,7 +62,7 @@ void writeToBuffer(struct buffer* outBuffer, struct buffer* inBuffer, int xOffse
     }
 }
 
-void drawBuffer(struct buffer* outBuff)
+void drawBuffer(buffer_t* outBuff)
 {
     clear();
     for(int y = 0; y < outBuff->dimensions.y; y++)
@@ -77,12 +77,12 @@ void drawBuffer(struct buffer* outBuff)
     refresh();
 }
 
-void clearBuffer(struct buffer* outBuff)
+void clearBuffer(buffer_t* outBuff)
 {
     fillBuffer(outBuff, ' ');
 }
 
-void drawLine(struct buffer* outBuff, struct vec2* pointA, struct vec2* pointB, char symbol)
+void drawLine(buffer_t* outBuff, vec2_t* pointA, vec2_t* pointB, char symbol)
 {
     int steps;
     double incX, incY;
@@ -111,7 +111,7 @@ void drawLine(struct buffer* outBuff, struct vec2* pointA, struct vec2* pointB, 
     }
 }
 
-void moveBuff(struct buffer* outBuff, struct vec2* move)
+void moveBuff(buffer_t* outBuff, vec2_t* move)
 {
     int size = outBuff->dimensions.x * outBuff->dimensions.y;
     memcpy(outBuff->data, outBuff->data - (outBuff->dimensions.x * move->y) - move->x, size);
@@ -141,7 +141,7 @@ void moveBuff(struct buffer* outBuff, struct vec2* move)
 struct inputModif
 {
     bool lock;
-    struct vec2 playerPos;
+    vec2_t playerPos;
     bool run;
 };
 
@@ -211,12 +211,12 @@ int main()
     int run = 1;
     char in;
 
-    struct buffer frameBuffer;
+    buffer_t frameBuffer;
     initBuffer(&frameBuffer, c_width, c_height);
-    struct buffer bckgTxt;
+    buffer_t bckgTxt;
     initBuffer(&bckgTxt, c_width, c_height);
     fillBuffer(&bckgTxt, '.');
-    struct buffer uiBuff;
+    buffer_t uiBuff;
     initBuffer(&uiBuff, c_width, c_height);
     clearBuffer(&uiBuff);
     {
@@ -239,18 +239,18 @@ int main()
         Vec2(pointB, c_width - 1, c_height);
         drawLine(&uiBuff, &pointA, &pointB, '|');
     }
-    struct buffer rainBuff;
+    buffer_t rainBuff;
     initBuffer(&rainBuff, c_width, c_height);
     clearBuffer(&rainBuff);
 
-    struct buffer coolLine;
+    buffer_t coolLine;
     initBuffer(&coolLine, c_width, c_height);
     clearBuffer(&coolLine);
     Vec2(coolLineStart, 0, 0);
     Vec2(coolLineEnd, c_width, 0);
     bool decrease = true;
 
-    struct buffer bottle;
+    buffer_t bottle;
     initBuffer(&bottle, 6, 6);
     bottle.data = "  ||  __||__|____|| XX ||----||____|";
 
