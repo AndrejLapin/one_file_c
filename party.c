@@ -15,7 +15,6 @@ typedef struct vec2
     int y;
 }vec2_t;
 
-#define Vec2(name,xc,yc) vec2_t name; name.x = xc; name.y = yc;
 #define R(r) rand() % r
 
 typedef struct buffer 
@@ -220,23 +219,23 @@ int main()
     initBuffer(&uiBuff, c_width, c_height);
     clearBuffer(&uiBuff);
     {
-        Vec2(pointA, 0, 0);
-        Vec2(pointB, c_width, 0);
+        vec2_t pointA = { 0 , 0 };
+        vec2_t pointB = { c_width, 0 };
         drawLine(&uiBuff, &pointA, &pointB, '=');
     }
     {
-        Vec2(pointA, 0, c_height - 1);
-        Vec2(pointB, c_width, c_height - 1);
+        vec2_t pointA = { 0, c_height - 1 };
+        vec2_t pointB = { c_width, c_height - 1 };
         drawLine(&uiBuff, &pointA, &pointB, '=');
     }
     {
-        Vec2(pointA, 0, 0);
-        Vec2(pointB, 0, c_height);
+        vec2_t pointA = { 0, 0 };
+        vec2_t pointB = { 0, c_height };
         drawLine(&uiBuff, &pointA, &pointB, '|');
     }
     {
-        Vec2(pointA, c_width - 1, 0);
-        Vec2(pointB, c_width - 1, c_height);
+        vec2_t pointA = { c_width - 1, 0 };
+        vec2_t pointB = { c_width - 1, c_height };
         drawLine(&uiBuff, &pointA, &pointB, '|');
     }
     buffer_t rainBuff;
@@ -246,8 +245,8 @@ int main()
     buffer_t coolLine;
     initBuffer(&coolLine, c_width, c_height);
     clearBuffer(&coolLine);
-    Vec2(coolLineStart, 0, 0);
-    Vec2(coolLineEnd, c_width, 0);
+    vec2_t coolLineStart = { 0, 0 };
+    vec2_t coolLineEnd = { c_width, 0 };
     bool decrease = true;
 
     buffer_t bottle;
@@ -325,7 +324,7 @@ int main()
             rainBuff.data[((rnd <= rainBuff.dimensions.y) * rnd * rainBuff.dimensions.x) + (rnd > rainBuff.dimensions.y) * (rnd - rainBuff.dimensions.y)] = '\\';
         }
         {
-            Vec2(mv, 1, 1);
+            vec2_t mv = { 1, 1 };
             moveBuff(&rainBuff, &mv);
         }
         usleep(20000);
