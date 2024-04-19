@@ -9,13 +9,15 @@
 #include <unistd.h>
 #include <pthread.h>
 
-typedef struct vec2_t 
+typedef unsigned int uint32;
+
+typedef struct vec2_t
 {
-    int x;
-    int y;
+    uint32 x;
+    uint32 y;
 }vec2_t;
 
-#define R(r) rand() % r
+#define R(r) arc4random() % r
 
 typedef struct buffer_t
 {
@@ -23,38 +25,75 @@ typedef struct buffer_t
     char* data;
 }buffer_t;
 
-void initBuffer(buffer_t* writeBuff, int width, int height)
+uint32 max(uint32 var1, uint32 var2)
+{
+    if (var1 > var2) 
+    {
+        return var1;
+    }
+    return var2;
+}
+
+uint32 min(uint32 var1, uint32 var2) 
+{
+    if (var1 < var2) 
+    {
+        return var1;
+    }
+    return var2;
+}
+
+uint32 difference(uint32 var1, uint32 var2)
+{
+    if (var1 > var2)
+    {
+        return var1 - var2;
+    }
+    return var2 - var1;
+}
+
+void initBufferSize(buffer_t* writeBuff, uint32 width, uint32 height) 
 {
     writeBuff->dimensions.x = width;
     writeBuff->dimensions.y = height;
+}
+
+void initBuffer(buffer_t* writeBuff, uint32 width, uint32 height)
+{
+    initBufferSize(writeBuff, width, height);
     writeBuff->data = malloc(width * height * sizeof(char));
 }
 
 void fillBuffer(buffer_t* writeBuff, char data)
 {
     int size = writeBuff->dimensions.x * writeBuff->dimensions.y;
-    for(int i = 0; i < size; i++)
+    for (int i = 0; i < size; i++)
     {
         writeBuff->data[i] = data;
     }
 }
 
-void writeToBuffer(buffer_t* outBuffer, buffer_t* inBuffer, int xOffset, int yOffset)
+void writeToBuffer(buffer_t* outBuffer, buffer_t* inBuffer, uint32 xOffset, uint32 yOffset)
 {
-    for(int y = 0; y < inBuffer->dimensions.y; y++)
+    for (int y = 0; y < inBuffer->dimensions.y; y++)
     {
         int outY = y + yOffset;
-        if(outY < 0 || outY >= outBuffer->dimensions.y)
-        continue;
+        if (outY < 0 || outY >= outBuffer->dimensions.y) {
+            continue;
+        }
 
         for (int x = 0; x < inBuffer->dimensions.x; x++)
         {
-            if(inBuffer->data[y * inBuffer->dimensions.x + x] == ' ')
-            continue;
+            if (inBuffer->data[y * inBuffer->dimensions.x + x] == ' ')
+            {
+                continue;
+            }
 
             int outX = x + xOffset;
-            if(outX < 0 || outX >= outBuffer->dimensions.x)
-            continue;
+            if (outX < 0 || outX >= outBuffer->dimensions.x)
+            {
+                continue;
+            }
 
             outBuffer->data[outY * outBuffer->dimensions.x + outX] = inBuffer->data[y * inBuffer->dimensions.x + x];
         }
@@ -64,7 +103,7 @@ void writeToBuffer(buffer_t* outBuffer, buffer_t* inBuffer, int xOffset, int yOf
 void drawBuffer(buffer_t* outBuff)
 {
     clear();
-    for(int y = 0; y < outBuff->dimensions.y; y++)
+    for (int y = 0; y < outBuff->dimensions.y; y++)
     {
         for (int x = 0; x < outBuff->dimensions.x; x++)
         {
@@ -83,12 +122,12 @@ void clearBuffer(buffer_t* outBuff)
 
 void drawLine(buffer_t* outBuff, vec2_t* pointA, vec2_t* pointB, char symbol)
 {
-    int steps;
+    uint32 steps;
     double incX, incY;
     {
-        int dx = abs(pointA->x - pointB->x);
-        int dy = abs(pointA->y - pointB->y);
-        if(dx > dy)
+        uint32 dx = difference(pointA->x, pointB->x);
+        uint32 dy = difference(pointA->y, pointB->y);
+        if (dx > dy)
             steps = dx;
         else
             steps = dy;
@@ -98,9 +137,9 @@ void drawLine(buffer_t* outBuff, vec2_t* pointA, vec2_t* pointB, char symbol)
 
     double x = pointA->x;
     double y = pointA->y;
-    for(int step = 0; step <= steps; step++)
+    for (int step = 0; step <= steps; step++)
     {
-        if(x < outBuff->dimensions.x && y < outBuff->dimensions.y)
+        if (x < outBuff->dimensions.x && y < outBuff->dimensions.y)
         {
             int drawIndex = round(y) * outBuff->dimensions.x + round(x);
             outBuff->data[drawIndex] = symbol; 
@@ -118,9 +157,9 @@ void moveBuff(buffer_t* outBuff, vec2_t* move)
     int yEnd = move->y > 0 ? move->y : outBuff->dimensions.y; 
     
     // should be just a one dimensional for loop that goes through entire buffer and fills with ' ' using a condition
-    for(; y < yEnd; ++y)
+    for (; y < yEnd; ++y)
     {
-        for(int x = 0; x < outBuff->dimensions.x; ++x)
+        for (int x = 0; x < outBuff->dimensions.x; ++x)
         {
             outBuff->data[y * outBuff->dimensions.x + x] = ' ';
         }
@@ -128,9 +167,9 @@ void moveBuff(buffer_t* outBuff, vec2_t* move)
 
     int xStart = move->x > 0 ? 0 : outBuff->dimensions.x + move->x;
     int xEnd = move->x > 0 ? move->x : outBuff->dimensions.x;
-    for(int y = 0; y < outBuff->dimensions.y; ++y)
+    for (int y = 0; y < outBuff->dimensions.y; ++y)
     {
-        for(int x = xStart; x < xEnd; ++x)
+        for (int x = xStart; x < xEnd; ++x)
         {
             outBuff->data[y *outBuff->dimensions.x + x] = ' ';
         }
@@ -146,7 +185,7 @@ struct inputModif
 
 void lock(struct inputModif* modif)
 {
-    while(modif->lock)
+    while (modif->lock)
     {
         usleep(1000);
     }
@@ -163,11 +202,11 @@ void* processInput(void* data)
     bool run = true;
     char in;
     struct inputModif* modif = (struct inputModif*)data;
-    while(run)
+    while (run)
     {
         in = getch();
 
-        if(in == 'w')
+        if (in == 'w')
         {
             lock(modif);
             modif->playerPos.y -= 1;
@@ -191,7 +230,7 @@ void* processInput(void* data)
             modif->playerPos.x += 1;
             unlock(modif);
         }
-        else if(in == ':')
+        else if (in == ':')
         {
             run = false;
             lock(modif);
@@ -207,6 +246,7 @@ const int c_height = 24;
 
 int main()
 {
+    printf("Starting applciation\n");
     int run = 1;
     char in;
 
@@ -250,7 +290,7 @@ int main()
     bool decrease = true;
 
     buffer_t bottle;
-    initBuffer(&bottle, 6, 6);
+    initBufferSize(&bottle, 6, 6);
     bottle.data = "  ||  __||__|____|| XX ||----||____|";
 
     struct inputModif inputModif;
@@ -263,7 +303,7 @@ int main()
 
     pthread_t inputThread;
     pthread_create(&inputThread, NULL, processInput, &inputModif);
-    while(run)
+    while (run)
     {
         clearBuffer(&frameBuffer);
         //writeToBuffer(&frameBuffer, &bckgTxt, 0, 0);

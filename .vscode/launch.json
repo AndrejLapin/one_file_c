@@ -5,26 +5,15 @@
     "version": "2.0.0",
     "configurations": [
         {
-            "name": "C++ Launch",
-            "type": "cppdbg",
+            "name": "C Launch",
+            "type": "lldb",
             "request": "launch",
             "program": "${workspaceFolder}/bin/${fileBasenameNoExtension}",
             "internalConsoleOptions": "openOnSessionStart",
             "preLaunchTask": "C/C++: gcc build active file",
-            "logging": {
-                "moduleLoad": false,
-                "programOutput": true,
-                "trace": false
-            },
-            "showDisplayString": false,
             "args": [],
-            "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": true, // set true to enable keyboard input
-            "osx": {
-                "MIMode": "lldb"
-            }
+            "terminal": "integrated"
         }
     ]
 }

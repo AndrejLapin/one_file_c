@@ -1,7 +1,7 @@
 {
     "tasks": [
         {
-            "type": "cppbuild",
+            "type": "process",
             "label": "C/C++: gcc build active file",
             "command": "/usr/bin/clang",
             "args": [
@@ -17,7 +17,7 @@
                 "cwd": "${fileDirname}"
             },
             "problemMatcher": [
-                "$gcc"
+                "$tsc-watch"
             ],
             "group": {
                 "kind": "build",
